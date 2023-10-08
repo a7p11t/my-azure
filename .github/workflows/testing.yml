@@ -1,0 +1,14 @@
+# This workflow is for testing
+# CAUTION: When pushing, change file name to "XXX.yml"
+
+name: 'Workflow Testing'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  workflow-testing:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: ""
