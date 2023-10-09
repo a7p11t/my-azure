@@ -90,7 +90,7 @@ jobs:
 
           # Generate new suffix
           while `az group exists --name ${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}`; do
-            RG_NAME_SUFFIX=$(printf "%03d\n" `expr RG_NAME_SUFFIX+1`)
+            RG_NAME_SUFFIX=$(printf "%03d\n" `expr $RG_NAME_SUFFIX + 1`)
           done
           # Generate resource group name
           echo "RG_NAME=${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}" >> $GITHUB_ENV
