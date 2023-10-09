@@ -45,30 +45,26 @@ jobs:
       - name: "Set environment variables"
         run: |
           # Generate system and abbreviated names for locations
-          if [ "${{ github.event.inputs.LOCATION }}" = "Japan East" ]; then
-            echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
-            echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
-          elif [ "${{ github.event.inputs.LOCATION }}" = "East US" ]; then
-            echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
-            echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
-          else
-            :
-          fi
-
+          case "${{ github.event.inputs.LOCATION }}" in
+            "Japan East")
+              echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
+              echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
+              ;;
+            "East US")
+              echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
+              echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
+              ;;
+          esac
           # Generate abbreviated names for environments
           case "${{ github.event.inputs.ENV_NAME }}" in
             "Development")
-            echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV
-            ;;
+              echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV;;
             "Integration")
-            echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV
-            ;;
+              echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV;;
             "Staging")
-            echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV
-            ;;
+              echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV;;
             "Production")
-            echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV
-            ;;
+              echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV;;
           esac
 
       - name: "Login to Azure"
@@ -87,7 +83,6 @@ jobs:
           while `az group exists --name ${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}`; do
             RG_NAME_SUFFIX=$(printf "%03d\n" "$((RG_NAME_SUFFIX+1))")
           done
-
           # Generate resource group name
           echo "RG_NAME=${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}" >> $GITHUB_ENV
 
