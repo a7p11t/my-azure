@@ -36,7 +36,7 @@ on:
         default: "Jun Kato"
         type: string
       USER_OBJECT_ID:
-        description: "Enter user object id to be granted Contributor"
+        description: "Enter user object id which Contributor will be assigned"
         required: true
         type: string
 
