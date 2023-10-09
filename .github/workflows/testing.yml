@@ -45,10 +45,10 @@ jobs:
       - name: "Set environment variables"
         run: |
           # Generate system and abbreviated names for locations
-          if [ ${{ github.event.inputs.LOCATION }} == 'Japan East' ]; then
+          if [ ${{ github.event.inputs.LOCATION }} = 'Japan East' ]; then
             echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
             echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
-          elif [ ${{ github.event.inputs.LOCATION }} == 'East US' ]; then
+          elif [ ${{ github.event.inputs.LOCATION }} = 'East US' ]; then
             echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
             echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
           else
