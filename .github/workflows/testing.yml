@@ -52,7 +52,6 @@ jobs:
           echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
             echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
           fi
-          if [ ${{ github.event.inputs.ENV_NAME }} == 'development']
 
           # Generate abbreviated names for environments
           case "${{ github.event.inputs.ENV_NAME }}" in
