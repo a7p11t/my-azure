@@ -49,7 +49,7 @@ jobs:
             echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
             echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
           elif [ ${{ github.event.inputs.LOCATION }} == 'East US' ]; then
-          echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
+            echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
             echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
           fi
 
