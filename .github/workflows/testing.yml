@@ -95,6 +95,6 @@ jobs:
 
       - name: "Role assignment to new resource group"
         run: |
-          az role assignment create --assignee ${{ github.event.inputs.PRINCIPAL_NAME }} \
+          az role assignment create --assignee-object-id ${{ github.event.inputs.USER_OBJECT_ID }} \
                                     --role Contributor \
                                     --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RG_NAME
