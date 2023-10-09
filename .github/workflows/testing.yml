@@ -51,6 +51,8 @@ jobs:
           elif [ ${{ github.event.inputs.LOCATION }} == 'East US' ]; then
             echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
             echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
+          else
+            :
           fi
 
           # Generate abbreviated names for environments
@@ -67,6 +69,7 @@ jobs:
             "Production")
             echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV
             ;;
+          esac
           
           # Generate resource group name
           echo "RG_NAME=rg-${{ github.event.inputs.SERVICE_NAME }}-${{ env.LOCATION_SHORT }}-001" >> $GITHUB_ENV
