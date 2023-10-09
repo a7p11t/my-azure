@@ -30,6 +30,11 @@ on:
           - Integration
           - Staging
           - Production
+      USER_NAME:
+        description: "Enter user name to assign to tag"
+        required: true
+        default: "Jun Kato"
+        type: string
       USER_OBJECT_ID:
         description: "Enter user object id to be granted Contributor"
         required: true
