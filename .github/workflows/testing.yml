@@ -6,25 +6,77 @@ name: 'Workflow Testing'
 
 on:
   workflow_dispatch:
+    inputs:
+      LOCATION:
+        description: "Enter location of resource group"
+        required: true
+        default: "Japan East"
+        type: choice
+        options:
+          - Japan East
+          - East US
+      SERVICE_NAME:
+        description: "Enter service name"
+        required: true
+        default: "workspace"
+        type: string
+      ENV_NAME:
+        description: "Enter environment name"
+        required: true
+        default: "Development"
+        type: choice
+        options:
+          - Development
+          - Integration
+          - Staging
+          - Production
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  #create-rg:
   workflow-testing:
+  #create-rg:
     runs-on: ubuntu-latest
     environment: development
 
     steps:
-    - name: 'Login to Azure'
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: 'Run Azure CLI commands'
-      run: |
-        az account show
-        pwd
+      - name: "Set environment variables"
+        run: |
+          # Generate system and abbreviated names for locations
+          if [ ${{ github.event.inputs.LOCATION }} == 'Japan East' ]; then
+            echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
+            echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
+          elif [ ${{ github.event.inputs.LOCATION }} == 'East US' ]; then
+          echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
+            echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
+          fi
+          if [ ${{ github.event.inputs.ENV_NAME }} == 'development']
+
+          # Generate abbreviated names for environments
+          case "${{ github.event.inputs.ENV_NAME }}" in
+            "Development")
+            echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV
+            ;;
+            "Integration")
+            echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV
+            ;;
+            "Staging")
+            echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV
+            ;;
+            "Production")
+            echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV
+            ;;
+          
+          # Generate resource group name
+          echo "RG_NAME=rg-${{ github.event.inputs.SERVICE_NAME }}-${{ env.LOCATION_SHORT }}-001" >> $GITHUB_ENV
+          #重複排除
+      - name: "Login to Azure"
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: "Create resource group"
+        run: az group create --location ${{ env.LOCATION_SYSTEM }} --name ${{ env.RG_NAME }}
