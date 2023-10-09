@@ -30,8 +30,8 @@ on:
           - Integration
           - Staging
           - Production
-      PRINCIPAL_NAME:
-        description: "Enter user principal name to be granted Contributor"
+      USER_OBJECT_ID:
+        description: "Enter user object id to be granted Contributor"
         required: true
         type: string
 
