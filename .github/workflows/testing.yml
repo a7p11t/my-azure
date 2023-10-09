@@ -47,10 +47,10 @@ jobs:
           # Generate system and abbreviated names for locations
           if [ "${{ github.event.inputs.LOCATION }}" = "Japan East" ]; then
             echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
-            LOCATION_SHORT=jpe1"
+            LOCATION_SHORT=jpe1
           elif [ "${{ github.event.inputs.LOCATION }}" = "East US" ]; then
             echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
-            LOCATION_SHORT=eus1"
+            LOCATION_SHORT=eus1
           else
             :
           fi
@@ -58,21 +58,21 @@ jobs:
           # Generate abbreviated names for environments
           case "${{ github.event.inputs.ENV_NAME }}" in
             "Development")
-            echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV
+            ENV_NAME_SHORT=dev
             ;;
             "Integration")
-            echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV
+            ENV_NAME_SHORT=integ
             ;;
             "Staging")
-            echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV
+            ENV_NAME_SHORT=stg
             ;;
             "Production")
-            echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV
+            ENV_NAME_SHORT=prod
             ;;
           esac
           
           # Generate resource group name
-          echo "RG_NAME=rg-${{ github.event.inputs.SERVICE_NAME }}-${LOCATION_SHORT}-001" >> $GITHUB_ENV
+          echo "RG_NAME=rg-${{ github.event.inputs.SERVICE_NAME }}-${ENV_NAME_SHORT}-${LOCATION_SHORT}-001" >> $GITHUB_ENV
           #重複排除
       - name: "Login to Azure"
         uses: azure/login@v1
