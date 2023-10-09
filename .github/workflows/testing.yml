@@ -47,10 +47,10 @@ jobs:
           # Generate system and abbreviated names for locations
           if [ "${{ github.event.inputs.LOCATION }}" = "Japan East" ]; then
             echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
-            LOCATION_SHORT=jpe1
+            echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
           elif [ "${{ github.event.inputs.LOCATION }}" = "East US" ]; then
             echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
-            LOCATION_SHORT=eus1
+            echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
           else
             :
           fi
@@ -58,27 +58,38 @@ jobs:
           # Generate abbreviated names for environments
           case "${{ github.event.inputs.ENV_NAME }}" in
             "Development")
-            ENV_NAME_SHORT=dev
+            echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV
             ;;
             "Integration")
-            ENV_NAME_SHORT=integ
+            echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV
             ;;
             "Staging")
-            ENV_NAME_SHORT=stg
+            echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV
             ;;
             "Production")
-            ENV_NAME_SHORT=prod
+            echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV
             ;;
           esac
-          
-          # Generate resource group name
-          echo "RG_NAME=rg-${{ github.event.inputs.SERVICE_NAME }}-${ENV_NAME_SHORT}-${LOCATION_SHORT}-001" >> $GITHUB_ENV
-          #重複排除
+
       - name: "Login to Azure"
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: "Generate resource group name"
+        run: |
+          RG_NAME_PREFIX=rg-${{ github.event.inputs.SERVICE_NAME }}-${ENV_NAME_SHORT}-${LOCATION_SHORT}
+          RG_NAME_SUFFIX=001
+
+          # Generate new suffix
+          while `az group exists --name ${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}`; do
+            RG_NAME_SUFFIX=$(printf "%03d\n" "$((RG_NAME_SUFFIX+1))")
+          done
+
+          # Generate resource group name
+          echo "RG_NAME=${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}" >> $GITHUB_ENV
+
       - name: "Create resource group"
-        run: az group create --location $LOCATION_SYSTEM --name $RG_NAME
+        run: az group create --location $LOCATION_SYSTEM --name $RG_NAME --tags created-by=${{github.actor}}
