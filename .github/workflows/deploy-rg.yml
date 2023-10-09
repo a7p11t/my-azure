@@ -92,3 +92,15 @@ jobs:
 
       - name: "Create resource group"
         run: az group create --location $LOCATION_SYSTEM --name $RG_NAME --tags created-by=${{ github.event.inputs.USER_NAME }}
+
+      - name: "Role assignment to new resource group"
+        run: |
+          case "${{ github.event.inputs.USER_NAME }}" in
+            "Jun Kato")
+              USER_OBJECT_ID=${{ secrets.AZURE_USER_OBJECT_ID_001 }};;
+          esac
+
+          az role assignment create --assignee-object-id $USER_OBJECT_ID \
+                                    --assignee-principal-type User \
+                                    --role Contributor \
+                                    --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RG_NAME
