@@ -8,37 +8,35 @@ on:
   workflow_dispatch:
     inputs:
       LOCATION:
-        description: "Enter location of resource group"
+        description: 'Enter location of resource group'
         required: true
-        default: "Japan East"
+        default: 'Japan East'
         type: choice
         options:
-          - Japan East
-          - East US
+          - 'Japan East'
+          - 'East US'
       SERVICE_NAME:
-        description: "Enter service name"
+        description: 'Enter service name'
         required: true
-        default: "workspace"
+        default: 'workspace'
         type: string
       ENV_NAME:
-        description: "Enter environment name"
+        description: 'Enter environment name'
         required: true
-        default: "Development"
+        default: 'Development'
         type: choice
         options:
-          - Development
-          - Integration
-          - Staging
-          - Production
+          - 'Development'
+          - 'Integration'
+          - 'Staging'
+          - 'Production'
       USER_NAME:
-        description: "Enter user name to assign to tag"
+        description: 'Enter user name to assign to tag'
         required: true
-        default: "Jun Kato"
-        type: string
-      USER_OBJECT_ID:
-        description: "Enter user object id which Contributor will be assigned"
-        required: true
-        type: string
+        default: 'Jun Kato'
+        type: choice
+        options:
+          - 'Jun Kato'
 
 permissions:
   id-token: write
@@ -100,8 +98,12 @@ jobs:
 
       - name: "Role assignment to new resource group"
         run: |
-          echo "::add-mask::${{ github.event.inputs.USER_OBJECT_ID }}"
-          az role assignment create --assignee-object-id ${{ github.event.inputs.USER_OBJECT_ID }} \
+          case "${{ github.event.inputs.USER_NAME }}" in
+            "Jun Kato")
+              USER_OBJECT_ID=${{ secrets.AZURE_USER_OBJECT_ID_001 }}
+          esac
+
+          az role assignment create --assignee-object-id $USER_OBJECT_ID \
                                     --assignee-principal-type User \
                                     --role Contributor \
                                     --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RG_NAME
