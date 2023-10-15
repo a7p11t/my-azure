@@ -91,7 +91,9 @@ jobs:
           echo "RG_NAME=${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}" >> $GITHUB_ENV
 
       - name: "Create resource group"
-        run: az group create --location $LOCATION_SYSTEM --name $RG_NAME --tags created-by=${{ github.event.inputs.USER_NAME }}
+        run: az group create --location $LOCATION_SYSTEM --name $RG_NAME \
+                             --tags created-by=${{ github.event.inputs.USER_NAME }} \
+                                    service=${{ github.event.inputs.SERVICE_NAME }}
 
       - name: "Role assignment to new resource group"
         run: |
