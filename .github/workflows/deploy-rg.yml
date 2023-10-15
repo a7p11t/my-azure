@@ -1,0 +1,108 @@
+# This workflow create a resource group for specific subscription
+
+name: 'Deploy Resource Group'
+
+on:
+  workflow_dispatch:
+    inputs:
+      LOCATION:
+        description: 'Enter location of resource group'
+        required: true
+        default: 'Japan East'
+        type: choice
+        options:
+          - 'Japan East'
+          - 'East US'
+      SERVICE_NAME:
+        description: 'Enter service name'
+        required: true
+        default: 'workspace'
+        type: string
+      ENV_NAME:
+        description: 'Enter environment name'
+        required: true
+        default: 'Development'
+        type: choice
+        options:
+          - 'Development'
+          - 'Integration'
+          - 'Staging'
+          - 'Production'
+      USER_NAME:
+        description: 'Enter user name to assign to tag'
+        required: true
+        default: 'Jun Kato'
+        type: choice
+        options:
+          - 'Jun Kato'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  create-rg:
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: "Set environment variables"
+        run: |
+          # Generate system and abbreviated names for locations
+          case "${{ github.event.inputs.LOCATION }}" in
+            "Japan East")
+              echo "LOCATION_SYSTEM=japaneast" >> $GITHUB_ENV
+              echo "LOCATION_SHORT=jpe1" >> $GITHUB_ENV
+              ;;
+            "East US")
+              echo "LOCATION_SYSTEM=eastus" >> $GITHUB_ENV
+              echo "LOCATION_SHORT=eus1" >> $GITHUB_ENV
+              ;;
+          esac
+          # Generate abbreviated names for environments
+          case "${{ github.event.inputs.ENV_NAME }}" in
+            "Development")
+              echo "ENV_NAME_SHORT=dev" >> $GITHUB_ENV;;
+            "Integration")
+              echo "ENV_NAME_SHORT=integ" >> $GITHUB_ENV;;
+            "Staging")
+              echo "ENV_NAME_SHORT=stg" >> $GITHUB_ENV;;
+            "Production")
+              echo "ENV_NAME_SHORT=prod" >> $GITHUB_ENV;;
+          esac
+
+      - name: "Login to Azure"
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: "Generate resource group name"
+        run: |
+          RG_NAME_PREFIX=rg-${{ github.event.inputs.SERVICE_NAME }}-${ENV_NAME_SHORT}-${LOCATION_SHORT}
+          RG_NAME_SUFFIX=001
+
+          # Generate new suffix
+          while `az group exists --name ${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}`; do
+            RG_NAME_SUFFIX=$(printf "%03d\n" `expr $RG_NAME_SUFFIX + 1`)
+          done
+          # Generate resource group name
+          echo "RG_NAME=${RG_NAME_PREFIX}-${RG_NAME_SUFFIX}" >> $GITHUB_ENV
+
+      - name: "Create resource group"
+        run: az group create --location $LOCATION_SYSTEM --name $RG_NAME \
+                             --tags created-by=${{ github.event.inputs.USER_NAME }} \
+                                    service=${{ github.event.inputs.SERVICE_NAME }}
+
+      - name: "Role assignment to new resource group"
+        run: |
+          case "${{ github.event.inputs.USER_NAME }}" in
+            "Jun Kato")
+              USER_OBJECT_ID=${{ secrets.AZURE_USER_OBJECT_ID_001 }};;
+          esac
+
+          az role assignment create --assignee-object-id $USER_OBJECT_ID \
+                                    --assignee-principal-type User \
+                                    --role Contributor \
+                                    --scope /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$RG_NAME
